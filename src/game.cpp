@@ -17,7 +17,7 @@ bool Game::run()
             {
                 handle_events(event);
             }
-
+            m_player.get()->move();
             render();
         }
     }
@@ -50,11 +50,14 @@ bool Game::init()
         return false;
     }
 
+    // TODO: Load media and intialize player, computer & ball in the same fcn?
     if(!load_media())
     {
         return false;
     }
 
+    m_player.reset(new Player(m_pad, m_width-20,10, m_width, m_height));
+    
     return true;
 }
 
@@ -69,10 +72,11 @@ void Game::close()
 
 void Game::handle_events(SDL_Event event)
 {
-    if(event.type == SDL_QUIT)
+    if(event.type == SDL_QUIT || (event.type == SDL_KEYUP and event.key.keysym.sym == SDLK_ESCAPE))
     {
         m_quit = true;
     }
+    m_player.get()->handle_events(event);
 }
 
 bool Game::load_media()
@@ -84,7 +88,6 @@ bool Game::load_media()
 void Game::render()
 {
     m_window.get()->render_clear();
-    m_pad.render(10,10, m_window.get()->get_renderer());
-    m_pad.render(m_width-20,10, m_window.get()->get_renderer());
+    m_player.get()->render(m_window.get()->get_renderer());
     m_window.get()->render_present();
 }

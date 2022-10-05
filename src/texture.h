@@ -13,6 +13,8 @@ class Texture
         void render(int x, int y, SDL_Renderer* renderer);
         void free();
 
+        int get_width();
+        int get_height();
     private:
         int m_width{0};
         int m_height{0};

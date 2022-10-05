@@ -1,11 +1,12 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <memory>
+#include <string>
 #include <SDL2/SDL_image.h>
 #include "window.h"
 #include "texture.h"
-#include <memory>
-#include <string>
+#include "player.h"
 
 class Game
 {
@@ -23,6 +24,7 @@ class Game
         std::string m_pad_path{"../assets/pad.png"};
         Texture m_pad{};
 
+        std::unique_ptr<Player> m_player{};
         std::unique_ptr<Window> m_window{};
 
         bool init();

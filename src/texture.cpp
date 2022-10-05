@@ -51,3 +51,13 @@ void Texture::free()
         m_height = 0;
     }
 }
+
+int Texture::get_width()
+{
+    return m_width;
+}
+
+int Texture::get_height()
+{
+    return m_height;
+}
