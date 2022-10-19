@@ -15,6 +15,7 @@ class Texture
 
         int get_width();
         int get_height();
+        
     private:
         int m_width{0};
         int m_height{0};

@@ -1,12 +1,20 @@
 #include "player.h"
 
-Player::Player(Texture texture, int x, int y, int x_limit, int y_limit)
+// TODO: Only needed for intializing map. Change this?
+Player::Player()
+{
+    m_texture = Texture();
+    m_x = 0;
+    m_y = 0;
+}
+
+Player::Player(Texture texture, int x, int y, int y_limit)
 {
     m_texture = texture;
     m_x = x;
     m_y = y;
 
-    m_x_limit = x_limit;
+    m_collision_box = {x, y, texture.get_width(), texture.get_height()};
     m_y_limit = y_limit;
 }
 
@@ -41,13 +49,13 @@ void Player::move()
 {
     if(m_velocity_y > 0)
     {
-        if(m_y + m_velocity_y + m_texture.get_height() < m_y_limit)
+        if(m_y + m_velocity_y + m_collision_box.h < m_y_limit)
         {
             m_y += m_velocity_y;
         }
         else
         {
-            m_y = m_y_limit - m_texture.get_height();
+            m_y = m_y_limit - m_collision_box.h;
         }
     }
     else if(m_velocity_y < 0)
@@ -61,4 +69,17 @@ void Player::move()
             m_y = 0;
         }
     }
+
+    m_collision_box.x = m_x;
+    m_collision_box.y = m_y;
+}
+
+SDL_Rect Player::get_box()
+{
+    return m_collision_box;
+}
+
+int Player::get_y_velocity()
+{
+    return m_velocity_y;
 }

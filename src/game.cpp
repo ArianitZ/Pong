@@ -17,7 +17,9 @@ bool Game::run()
             {
                 handle_events(event);
             }
-            m_player.get()->move();
+            m_players["player"].move();
+            m_players["npc"].move();
+            m_ball.get()->move(m_players);
             render();
         }
     }
@@ -34,6 +36,7 @@ bool Game::init()
         return false;
     }
 
+    // Initialize Window & Renderer
     m_window.reset(new Window(m_width, m_height, m_title));
     if(!(m_window.get()->init()))
     {
@@ -55,16 +58,18 @@ bool Game::init()
     {
         return false;
     }
-
-    m_player.reset(new Player(m_pad, m_width-20,10, m_width, m_height));
-    
+    // TODO: keep initial positions stored in a variable
+    m_players["player"] = Player(m_pad_texture, m_width-20,10, m_height);
+    m_players["npc"] = Player(m_pad_texture, 10, m_height/2, m_height);
+    m_ball.reset(new Ball(m_ball_texture, m_width/2, m_height/2, m_width, m_height));
     return true;
 }
 
 void Game::close()
 {
     m_window.get()->free();
-    m_pad.free();
+    m_pad_texture.free();
+    m_ball_texture.free();
 
     SDL_Quit();
     IMG_Quit();
@@ -76,18 +81,24 @@ void Game::handle_events(SDL_Event event)
     {
         m_quit = true;
     }
-    m_player.get()->handle_events(event);
+    m_players["player"].handle_events(event);
 }
 
 bool Game::load_media()
 {
-    bool successfull{ m_pad.load_texture_from_file(m_pad_path, m_window.get()->get_renderer()) };
+    // TODO: Check if loading is successful for all files, not just first one
+    bool successfull{ m_pad_texture.load_texture_from_file(m_pad_path, m_window.get()->get_renderer()) };
+    m_ball_texture.load_texture_from_file(m_ball_path, m_window.get()->get_renderer());
     return successfull;
 }
 
 void Game::render()
 {
     m_window.get()->render_clear();
-    m_player.get()->render(m_window.get()->get_renderer());
+
+    m_players["player"].render(m_window.get()->get_renderer());
+    m_players["npc"].render(m_window.get()->get_renderer());
+    m_ball.get()->render(m_window.get()->get_renderer());
+
     m_window.get()->render_present();
 }

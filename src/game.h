@@ -3,10 +3,12 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <SDL2/SDL_image.h>
 #include "window.h"
 #include "texture.h"
 #include "player.h"
+#include "ball.h"
 
 class Game
 {
@@ -22,9 +24,12 @@ class Game
         bool m_quit{false};
 
         std::string m_pad_path{"../assets/pad.png"};
-        Texture m_pad{};
+        std::string m_ball_path{"../assets/ball.png"};
+        Texture m_pad_texture{};
+        Texture m_ball_texture{};
 
-        std::unique_ptr<Player> m_player{};
+        std::unordered_map<std::string, Player> m_players{};
+        std::unique_ptr<Ball> m_ball{};
         std::unique_ptr<Window> m_window{};
 
         bool init();
