@@ -6,6 +6,7 @@ Player::Player()
     m_texture = Texture();
     m_x = 0;
     m_y = 0;
+    m_score = 0;
 }
 
 Player::Player(Texture texture, int x, int y, int y_limit)
@@ -13,6 +14,7 @@ Player::Player(Texture texture, int x, int y, int y_limit)
     m_texture = texture;
     m_x = x;
     m_y = y;
+    m_score = 0;
 
     m_collision_box = {x, y, texture.get_width(), texture.get_height()};
     m_y_limit = y_limit;
@@ -70,8 +72,19 @@ void Player::move()
         }
     }
 
-    m_collision_box.x = m_x;
     m_collision_box.y = m_y;
+}
+
+void Player::slow_move(int y_velocity)
+{
+    // Function meant for NPC. Slows down reaction of NPC by lowering the velocity of it.
+    m_velocity_y = y_velocity < 0 ? y_velocity + 1 : y_velocity - 1;
+    move();
+}
+
+void Player::set_score(int score)
+{
+    m_score = score;
 }
 
 SDL_Rect Player::get_box()
@@ -82,4 +95,9 @@ SDL_Rect Player::get_box()
 int Player::get_y_velocity()
 {
     return m_velocity_y;
+}
+
+int Player::get_score()
+{
+    return m_score;
 }

@@ -18,8 +18,13 @@ bool Game::run()
                 handle_events(event);
             }
             m_players["player"].move();
-            m_players["npc"].move();
-            m_ball.get()->move(m_players);
+            m_players["npc"].slow_move(m_ball.get()->get_y_velocity());
+            
+            bool ball_outside = m_ball.get()->move(m_players);
+            if(ball_outside)
+            {
+                update_score();
+            }
             render();
         }
     }
@@ -49,11 +54,18 @@ bool Game::init()
     int innit{ IMG_Init(img_flags) };
     if( !(innit & img_flags) )
     {
-        printf("Failed to initialize SDL Image. SDL Image Error %s: \n", IMG_GetError());
+        printf("Failed to initialize SDL Image. SDL Image Error: %s\n", IMG_GetError());
         return false;
     }
 
-    // TODO: Load media and intialize player, computer & ball in the same fcn?
+    // Initialize SDL Font
+    if(TTF_Init() == -1)
+    {
+        printf("Failed to initialize SDL_ttf. SDL_ttf Error: %s\n", TTF_GetError());
+        return false;
+    }
+
+    // TODO: Load media and intialize player, npc & ball in the same fcn?
     if(!load_media())
     {
         return false;
@@ -70,9 +82,12 @@ void Game::close()
     m_window.get()->free();
     m_pad_texture.free();
     m_ball_texture.free();
-
+    m_font_texture.free();
+    TTF_CloseFont(m_font);
+    
     SDL_Quit();
     IMG_Quit();
+    TTF_Quit();
 }
 
 void Game::handle_events(SDL_Event event)
@@ -86,19 +101,59 @@ void Game::handle_events(SDL_Event event)
 
 bool Game::load_media()
 {
-    // TODO: Check if loading is successful for all files, not just first one
-    bool successfull{ m_pad_texture.load_texture_from_file(m_pad_path, m_window.get()->get_renderer()) };
-    m_ball_texture.load_texture_from_file(m_ball_path, m_window.get()->get_renderer());
-    return successfull;
+    SDL_Renderer* renderer = m_window.get()->get_renderer();
+    if(!m_pad_texture.load_texture_from_file(m_pad_path, renderer))
+    {
+        return false;
+    }
+
+    if(!m_ball_texture.load_texture_from_file(m_ball_path, renderer))
+    {
+        return false;
+    }
+
+    m_font = TTF_OpenFont(m_font_path.c_str(), 32);
+    if(m_font == NULL)
+    {
+        printf("Failed to load font! SDL ttf error: %s\n", TTF_GetError());
+        return false;
+    }
+    
+    if(!m_font_texture.load_texture_from_font("Score: 0, 0", renderer, m_font))
+    {
+        false;
+    }
+
+    return true;
 }
 
 void Game::render()
 {
     m_window.get()->render_clear();
-
-    m_players["player"].render(m_window.get()->get_renderer());
-    m_players["npc"].render(m_window.get()->get_renderer());
+    
+    m_window.get()->render(m_players["player"]);
+    m_window.get()->render(m_players["npc"]);
     m_ball.get()->render(m_window.get()->get_renderer());
+    m_font_texture.render(m_width/2-m_font_texture.get_width()/2, 20, m_window.get()->get_renderer());
 
     m_window.get()->render_present();
+}
+
+void Game::update_score()
+{
+    int player_distance = std::abs(m_ball.get()->get_x()-m_players["player"].get_box().x);
+    int npc_distance = std::abs(m_ball.get()->get_x()-m_players["npc"].get_box().x);
+
+    if(player_distance < npc_distance)
+    {
+        m_players["npc"].set_score(m_players["npc"].get_score()+1);
+    }
+    else
+    {
+        m_players["player"].set_score(m_players["player"].get_score()+1);
+    }
+    std::string score = "Score: " + std::to_string(m_players["npc"].get_score()) + ", " + std::to_string(m_players["player"].get_score());
+    m_font_texture.load_texture_from_font(score, m_window.get()->get_renderer(), m_font);
+
+    m_ball.get()->reset_movement(m_width/2, m_height/2);
 }

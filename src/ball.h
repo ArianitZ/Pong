@@ -15,17 +15,19 @@ class Ball : IRenderable
         Ball(Texture texture, int x, int y, int window_width, int window_height);
 
         void render(SDL_Renderer* renderer);
-        void move(std::unordered_map<std::string, Player> players);
+        // Returns true if ball goes outside game window.
+        bool move(std::unordered_map<std::string, Player> players);
+        void reset_movement(int x, int y);
 
         int get_x();
         int get_y();
+        int get_y_velocity();
 
     private:
         Texture m_texture{};
-        // TODO: Use movement struct for position and velocity?
+
         int m_x{0};
         int m_y{0};
-
         int m_x_limit{0};
         int m_y_limit{0};
 
@@ -34,7 +36,7 @@ class Ball : IRenderable
         int m_velocity_x{0};
         int m_velocity_y{0};
 
-        void reset_movement(int x, int y);
+        int compute_y_velocity_factor(SDL_Rect player_box);
 };
 
 #endif

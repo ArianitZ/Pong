@@ -7,6 +7,22 @@ Texture::Texture()
     m_texture = NULL;
 }
 
+
+bool Texture::load_texture_from_font(std::string text, SDL_Renderer* renderer, TTF_Font* font)
+{
+    // Get rid of pre-exisiting texutre
+    free();
+
+    SDL_Surface* tmp_surface{TTF_RenderText_Solid(font, text.c_str(), {0x00, 0x00, 0x00})};
+    if(tmp_surface == NULL)
+    {
+        printf("Failed to load font '%s', SDL ttf error: %s\n", text.c_str(), TTF_GetError());
+        return false;
+    }
+
+    return load_texture_from_surface(renderer, tmp_surface);
+}
+
 bool Texture::load_texture_from_file(std::string path, SDL_Renderer* renderer)
 {
     // Get rid of pre-existing texture
@@ -19,19 +35,7 @@ bool Texture::load_texture_from_file(std::string path, SDL_Renderer* renderer)
         return false;
     }
 
-    m_texture = SDL_CreateTextureFromSurface(renderer, tmp_surface);
-    if(m_texture == NULL)
-    {
-        printf("Failed to create texture from surface, SDL error: %s\n", SDL_GetError());
-        SDL_FreeSurface(tmp_surface);
-        return false;
-    }
-
-    m_width = tmp_surface->w;
-    m_height = tmp_surface->h;
-    SDL_FreeSurface(tmp_surface);
-
-    return true;
+    return load_texture_from_surface(renderer, tmp_surface);
 }
 
 void Texture::render(int x, int y, SDL_Renderer* renderer)
@@ -60,4 +64,21 @@ int Texture::get_width()
 int Texture::get_height()
 {
     return m_height;
+}
+
+bool Texture::load_texture_from_surface(SDL_Renderer* renderer, SDL_Surface* surface)
+{
+    m_texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if(m_texture == NULL)
+    {
+        printf("Failed to create texture from surface, SDL error: %s\n", SDL_GetError());
+        SDL_FreeSurface(surface);
+        return false;
+    }
+
+    m_width = surface->w;
+    m_height = surface->h;
+    SDL_FreeSurface(surface);
+
+    return true;
 }

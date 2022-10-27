@@ -15,14 +15,20 @@ class Player : public IRenderable
         void render(SDL_Renderer* renderer);
         void handle_events(SDL_Event& event);
         void move();
+        void slow_move(int y_velocity);
+        
+        void set_score(int score);
         
         SDL_Rect get_box();
         int get_y_velocity();
+        int get_score();
+        
 
     private:
         Texture m_texture{};
         int m_x{0};
         int m_y{0};
+        int m_score{0};
 
         SDL_Rect m_collision_box{};
 

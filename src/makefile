@@ -4,7 +4,7 @@ COMPILER_FLAGS = -g
 
 DEPS = game.cpp window.cpp pong.cpp texture.cpp player.cpp ball.cpp support.cpp
 
-LINKER_FLAGS = -lSDL2 -lSDL2_image
+LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf
 
 OUTPUT = pong.o
 
